@@ -171,3 +171,11 @@
 - 清理不再受配置管理的同步产物 skill
 
 `cleanup` 不应该误删未受管的手写 skill。
+
+## Cursor Cloud specific instructions
+
+- 工具链是 Node.js 22 与 pnpm 10.33.0（根目录 `package.json` 的 `packageManager`，以及 `mise.toml`）。
+- 可运行的应用是 `apps/web` 技能目录。在 `apps/web` 执行 `pnpm install --frozen-lockfile`，再执行 `pnpm exec next dev --hostname 0.0.0.0 --port 3000`。浏览器打开 `http://localhost:3000`，开发服务器的热更新会连到这个主机名。Cloud Agent 启动后，这个开发服务器由环境的 `start` 拉起，并监听 3000 端口。
+- pnpm 10 默认不跑依赖的生命周期脚本。安装前执行 `pnpm config set dangerouslyAllowAllBuilds true --global`，这样 `sharp`（Next 图片与 OG）和 `unrs-resolver`（ESLint）会完成安装。
+- 根目录 `pnpm install` 会跑 `prepare`，并克隆全部 vendor submodule，其中包括 dify 这类大仓库。目录站点和 `pnpm start check` 使用已提交的 `skills/`。需要 `sync` 时再执行 `git submodule update --init`。
+- `apps/web` 没有自动化测试。类型检查是 `pnpm exec tsc --noEmit`，lint 是 `pnpm lint`。根目录 `pnpm generate:web-data` 会重写 `apps/web/src/data/skills.generated.ts`。
